@@ -1,0 +1,82 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+// Node structure for stack
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+// Push operation
+void push(struct Node** top, int val) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = val;
+    newNode->next = *top;
+    *top = newNode;
+}
+
+// Pop operation
+int pop(struct Node** top) {
+    if (*top == NULL) {
+        printf("Stack Underflow\n");
+        exit(1);
+    }
+    struct Node* temp = *top;
+    int val = temp->data;
+    *top = (*top)->next;
+    free(temp);
+    return val;
+}
+
+// Evaluate postfix expression
+int evaluatePostfix(char* expr) {
+    struct Node* stack = NULL;
+    int i = 0;
+
+    while (expr[i] != '\0') {
+        char c = expr[i];
+
+        // Skip spaces
+        if (c == ' ') {
+            i++;
+            continue;
+        }
+
+        // If operand (digit), push to stack
+        if (isdigit(c)) {
+            int num = 0;
+            // Handle multi-digit numbers
+            while (isdigit(expr[i])) {
+                num = num * 10 + (expr[i] - '0');
+                i++;
+            }
+            push(&stack, num);
+        }
+        // If operator, pop two operands and apply
+        else {
+            int val2 = pop(&stack);
+            int val1 = pop(&stack);
+            switch (c) {
+                case '+': push(&stack, val1 + val2); break;
+                case '-': push(&stack, val1 - val2); break;
+                case '*': push(&stack, val1 * val2); break;
+                case '/': push(&stack, val1 / val2); break;
+            }
+            i++;
+        }
+    }
+
+    return pop(&stack); // Final result
+}
+
+int main() {
+    char expr[100];
+    // Read entire line including spaces
+    fgets(expr, sizeof(expr), stdin);
+
+    int result = evaluatePostfix(expr);
+    printf("%d\n", result);
+
+    return 0;
+}
