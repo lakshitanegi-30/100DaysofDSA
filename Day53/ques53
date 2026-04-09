@@ -1,0 +1,114 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Node structure
+struct Node {
+    int data;
+    struct Node* left;
+    struct Node* right;
+};
+
+// Create new node
+struct Node* createNode(int val) {
+    if (val == -1) return NULL; // NULL node
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = val;
+    newNode->left = newNode->right = NULL;
+    return newNode;
+}
+
+// Build tree from level-order array
+struct Node* buildTree(int arr[], int n) {
+    if (n == 0 || arr[0] == -1) return NULL;
+
+    struct Node* root = createNode(arr[0]);
+
+    // Queue for level-order construction
+    struct Node* queue[n];
+    int front = 0, rear = 0;
+    queue[rear++] = root;
+
+    int i = 1;
+    while (i < n) {
+        struct Node* current = queue[front++];
+
+        // Left child
+        if (i < n) {
+            current->left = createNode(arr[i++]);
+            if (current->left != NULL)
+                queue[rear++] = current->left;
+        }
+
+        // Right child
+        if (i < n) {
+            current->right = createNode(arr[i++]);
+            if (current->right != NULL)
+                queue[rear++] = current->right;
+        }
+    }
+
+    return root;
+}
+
+// Structure to store nodes with horizontal distance
+struct Pair {
+    struct Node* node;
+    int hd; // horizontal distance
+};
+
+// Vertical order traversal
+void verticalOrder(struct Node* root) {
+    if (root == NULL) return;
+
+    // Queue for BFS
+    struct Pair queue[1000];
+    int front = 0, rear = 0;
+    queue[rear++] = (struct Pair){root, 0};
+
+    // Map horizontal distance to nodes
+    int minHD = 0, maxHD = 0;
+    int nodes[1000][1000]; // store nodes by column
+    int count[1000] = {0}; // count per column
+
+    while (front < rear) {
+        struct Pair current = queue[front++];
+        struct Node* node = current.node;
+        int hd = current.hd;
+
+        int index = hd + 500; // shift to avoid negative index
+        nodes[index][count[index]++] = node->data;
+
+        if (hd < minHD) minHD = hd;
+        if (hd > maxHD) maxHD = hd;
+
+        if (node->left != NULL)
+            queue[rear++] = (struct Pair){node->left, hd - 1};
+        if (node->right != NULL)
+            queue[rear++] = (struct Pair){node->right, hd + 1};
+    }
+
+    // Print columns from leftmost to rightmost
+    for (int hd = minHD; hd <= maxHD; hd++) {
+        int index = hd + 500;
+        for (int i = 0; i < count[index]; i++) {
+            printf("%d ", nodes[index][i]);
+        }
+        printf("\n");
+    }
+}
+
+int main() {
+    int n;
+    scanf("%d", &n);
+
+    int arr[n];
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &arr[i]);
+    }
+
+    struct Node* root = buildTree(arr, n);
+
+    verticalOrder(root);
+
+    return 0;
+}
