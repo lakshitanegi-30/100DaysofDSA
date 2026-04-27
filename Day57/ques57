@@ -1,67 +1,98 @@
-# Convert binary tree into mirror image
-# Print inorder traversal of mirrored tree
+#include <stdio.h>
+#include <stdlib.h>
 
-class Node:
-    def __init__(self, data):
-        self.data = data
-        self.left = None
-        self.right = None
+struct Node
+{
+    int data;
+    struct Node *left, *right;
+};
 
+// Create new node
+struct Node* newNode(int value)
+{
+    struct Node* temp = (struct Node*)malloc(sizeof(struct Node));
+    temp->data = value;
+    temp->left = temp->right = NULL;
+    return temp;
+}
 
-# Build tree from level order input
-def buildTree(arr, n):
-    if n == 0 or arr[0] == -1:
-        return None
+// Build tree from level order
+struct Node* buildTree(int arr[], int n)
+{
+    if (n == 0 || arr[0] == -1)
+        return NULL;
 
-    root = Node(arr[0])
-    queue = [root]
-    i = 1
+    struct Node* root = newNode(arr[0]);
 
-    while queue and i < n:
-        current = queue.pop(0)
+    struct Node* queue[n];
+    int front = 0, rear = 0;
+    queue[rear++] = root;
 
-        # Left child
-        if i < n and arr[i] != -1:
-            current.left = Node(arr[i])
-            queue.append(current.left)
-        i += 1
+    int i = 1;
 
-        # Right child
-        if i < n and arr[i] != -1:
-            current.right = Node(arr[i])
-            queue.append(current.right)
-        i += 1
+    while (front < rear && i < n)
+    {
+        struct Node* current = queue[front++];
 
-    return root
+        // Left child
+        if (i < n && arr[i] != -1)
+        {
+            current->left = newNode(arr[i]);
+            queue[rear++] = current->left;
+        }
+        i++;
 
+        // Right child
+        if (i < n && arr[i] != -1)
+        {
+            current->right = newNode(arr[i]);
+            queue[rear++] = current->right;
+        }
+        i++;
+    }
 
-# Mirror tree
-def mirror(root):
-    if root is None:
-        return None
+    return root;
+}
 
-    root.left, root.right = root.right, root.left
+// Convert to mirror
+void mirror(struct Node* root)
+{
+    if (root == NULL)
+        return;
 
-    mirror(root.left)
-    mirror(root.right)
+    struct Node* temp = root->left;
+    root->left = root->right;
+    root->right = temp;
 
+    mirror(root->left);
+    mirror(root->right);
+}
 
-# Inorder traversal
-def inorder(root):
-    if root:
-        inorder(root.left)
-        print(root.data, end=" ")
-        inorder(root.right)
+// Inorder traversal
+void inorder(struct Node* root)
+{
+    if (root != NULL)
+    {
+        inorder(root->left);
+        printf("%d ", root->data);
+        inorder(root->right);
+    }
+}
 
+int main()
+{
+    int n;
+    scanf("%d", &n);
 
-# Input
-n = int(input())
-arr = list(map(int, input().split()))
+    int arr[n];
+    for (int i = 0; i < n; i++)
+        scanf("%d", &arr[i]);
 
-root = buildTree(arr, n)
+    struct Node* root = buildTree(arr, n);
 
-# Convert to mirror
-mirror(root)
+    mirror(root);
 
-# Output inorder traversal
-inorder(root)
+    inorder(root);
+
+    return 0;
+}
