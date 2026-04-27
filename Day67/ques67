@@ -1,0 +1,81 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node
+{
+    int vertex;
+    struct Node* next;
+};
+
+// Create new node
+struct Node* createNode(int v)
+{
+    struct Node* temp = (struct Node*)malloc(sizeof(struct Node));
+    temp->vertex = v;
+    temp->next = NULL;
+    return temp;
+}
+
+// DFS for topological sort
+void DFS(int v, struct Node* adj[], int visited[], int stack[], int *top)
+{
+    visited[v] = 1;
+
+    struct Node* temp = adj[v];
+
+    while (temp != NULL)
+    {
+        int next = temp->vertex;
+
+        if (!visited[next])
+            DFS(next, adj, visited, stack, top);
+
+        temp = temp->next;
+    }
+
+    stack[++(*top)] = v;
+}
+
+int main()
+{
+    int n, m;
+    scanf("%d %d", &n, &m);
+
+    struct Node* adj[n];
+    int visited[n];
+
+    for (int i = 0; i < n; i++)
+    {
+        adj[i] = NULL;
+        visited[i] = 0;
+    }
+
+    // Input directed edges
+    for (int i = 0; i < m; i++)
+    {
+        int u, v;
+        scanf("%d %d", &u, &v);
+
+        struct Node* newNode = createNode(v);
+        newNode->next = adj[u];
+        adj[u] = newNode;
+    }
+
+    int stack[n];
+    int top = -1;
+
+    // DFS on all vertices
+    for (int i = 0; i < n; i++)
+    {
+        if (!visited[i])
+            DFS(i, adj, visited, stack, &top);
+    }
+
+    // Print topological order
+    while (top != -1)
+    {
+        printf("%d ", stack[top--]);
+    }
+
+    return 0;
+}
