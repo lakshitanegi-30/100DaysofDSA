@@ -1,0 +1,83 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node
+{
+    int vertex;
+    struct Node* next;
+};
+
+// Create new node
+struct Node* createNode(int v)
+{
+    struct Node* temp = (struct Node*)malloc(sizeof(struct Node));
+    temp->vertex = v;
+    temp->next = NULL;
+    return temp;
+}
+
+int main()
+{
+    int n, m;
+    scanf("%d", &n);
+    scanf("%d", &m);
+
+    struct Node* adj[n];
+    int visited[n];
+
+    // Initialize
+    for (int i = 0; i < n; i++)
+    {
+        adj[i] = NULL;
+        visited[i] = 0;
+    }
+
+    // Input edges
+    for (int i = 0; i < m; i++)
+    {
+        int u, v;
+        scanf("%d %d", &u, &v);
+
+        // Undirected graph
+        struct Node* newNode1 = createNode(v);
+        newNode1->next = adj[u];
+        adj[u] = newNode1;
+
+        struct Node* newNode2 = createNode(u);
+        newNode2->next = adj[v];
+        adj[v] = newNode2;
+    }
+
+    int s;
+    scanf("%d", &s);
+
+    // Queue
+    int queue[n];
+    int front = 0, rear = 0;
+
+    visited[s] = 1;
+    queue[rear++] = s;
+
+    while (front < rear)
+    {
+        int current = queue[front++];
+        printf("%d ", current);
+
+        struct Node* temp = adj[current];
+
+        while (temp != NULL)
+        {
+            int next = temp->vertex;
+
+            if (!visited[next])
+            {
+                visited[next] = 1;
+                queue[rear++] = next;
+            }
+
+            temp = temp->next;
+        }
+    }
+
+    return 0;
+}
