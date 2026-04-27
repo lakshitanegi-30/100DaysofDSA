@@ -1,0 +1,78 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node
+{
+    int vertex;
+    struct Node* next;
+};
+
+// Create new node
+struct Node* createNode(int v)
+{
+    struct Node* temp = (struct Node*)malloc(sizeof(struct Node));
+    temp->vertex = v;
+    temp->next = NULL;
+    return temp;
+}
+
+int main()
+{
+    int n, m;
+    scanf("%d %d", &n, &m);
+
+    struct Node* adj[n];
+    int indegree[n];
+
+    for (int i = 0; i < n; i++)
+    {
+        adj[i] = NULL;
+        indegree[i] = 0;
+    }
+
+    // Input directed edges
+    for (int i = 0; i < m; i++)
+    {
+        int u, v;
+        scanf("%d %d", &u, &v);
+
+        struct Node* newNode = createNode(v);
+        newNode->next = adj[u];
+        adj[u] = newNode;
+
+        indegree[v]++;
+    }
+
+    // Queue
+    int queue[n];
+    int front = 0, rear = 0;
+
+    // Add vertices with indegree 0
+    for (int i = 0; i < n; i++)
+    {
+        if (indegree[i] == 0)
+            queue[rear++] = i;
+    }
+
+    // Kahn's Algorithm
+    while (front < rear)
+    {
+        int current = queue[front++];
+        printf("%d ", current);
+
+        struct Node* temp = adj[current];
+
+        while (temp != NULL)
+        {
+            int next = temp->vertex;
+            indegree[next]--;
+
+            if (indegree[next] == 0)
+                queue[rear++] = next;
+
+            temp = temp->next;
+        }
+    }
+
+    return 0;
+}
