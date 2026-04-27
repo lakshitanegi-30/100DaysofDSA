@@ -1,0 +1,67 @@
+# Check whether a binary tree is symmetric
+
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.left = None
+        self.right = None
+
+
+# Build tree from level order input
+def buildTree(arr, n):
+    if n == 0 or arr[0] == -1:
+        return None
+    
+    root = Node(arr[0])
+    queue = [root]
+    i = 1
+    
+    while queue and i < n:
+        current = queue.pop(0)
+        
+        # Left child
+        if i < n and arr[i] != -1:
+            current.left = Node(arr[i])
+            queue.append(current.left)
+        i += 1
+        
+        # Right child
+        if i < n and arr[i] != -1:
+            current.right = Node(arr[i])
+            queue.append(current.right)
+        i += 1
+    
+    return root
+
+
+# Check mirror
+def isMirror(t1, t2):
+    if t1 is None and t2 is None:
+        return True
+    
+    if t1 is None or t2 is None:
+        return False
+    
+    return (t1.data == t2.data and
+            isMirror(t1.left, t2.right) and
+            isMirror(t1.right, t2.left))
+
+
+# Main symmetric check
+def isSymmetric(root):
+    if root is None:
+        return True
+    return isMirror(root.left, root.right)
+
+
+# Input
+n = int(input())
+arr = list(map(int, input().split()))
+
+root = buildTree(arr, n)
+
+# Output
+if isSymmetric(root):
+    print("YES")
+else:
+    print("NO")
